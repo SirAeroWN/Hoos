@@ -36,3 +36,37 @@
 # Memory:
 # 	Main memory is 2^16 slots of python ints.
 # 	Stack is 2^8 slots of python ints.
+
+## first need to create variables used in all functions
+
+# lists to hold memories
+mem = [0] * (2**16)
+stack = [0] * (2**8)
+
+# dict of registers
+reg = {"r0": 0,
+		"r1": 0,
+		"r2": 0,
+		"r3": 0,
+		"r4": 0,
+		"r5": 0,
+		"r6": 0,
+		"r7": 0,
+		"r8": 0,
+		"r9": 0,
+		"r10": 0,
+		"r11": 0,
+		"r12": 0,
+		"r13": 0,
+		"r14": 0,
+		"r15": 0,
+		"rsp": 0,
+		"rbp": 0,
+		"rax": 0,
+		"PC": 0}
+
+# variables is a dict that holds any var: address that are created
+variables = {}
+
+# program holds all the instructions of the program
+program = []
