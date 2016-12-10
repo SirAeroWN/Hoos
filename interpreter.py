@@ -7,6 +7,8 @@
 # 	or a, b, c			a = b or c
 # 	and a, b, c			a = b and c
 # 	not a, b			a = not b
+#	shiftr a, b, c 		a = b shifted c bits right
+#	shiftl a, b, c 		a = b shifted c bits left
 # 	nop
 # 	jmp a 				jump to instruction a
 # 	jmpe a, b, c		jump to instruction a if b == c
@@ -72,6 +74,9 @@ reg = {"r0": 0,
 # variables is a dict that holds any var: address that are created
 variables = {}
 
+# labels held in dict
+labels = {}
+
 # program holds all the instructions of the program
 program = []
 
@@ -92,6 +97,7 @@ def pop(a):
 	else:
 		print("Error when trying to pop into", a)
 		errorTraceback()
+	return
 
 def push(a):
 	if (a[0] == "["):
@@ -106,68 +112,128 @@ def push(a):
 	else:
 		print("Error when trying to push from", a)
 		errorTraceback()
+	return
 
 def add(a, b, c):
 	b = getValue(b)
 	c = getValue(c)
 
-	if (a[0] == "["):
-	elif ((a[0] == "r" and isNum(a[1])) or a == "rsp" or a == "rbp" or a == "rax" or a == "PC"):
-	elif (a in variables):
-	else:
-		print("Error when trying to add", b, "and", c, "and stor in", a)
-		errorTraceback()
+	assignValue(a, b + c)
+	return
 
 def sub(a, b, c):
+	b = getValue(b)
+	c = getValue(c)
 
+	assignValue(a, b - c)
+	return
 
 def xor(a, b, c):
+	b = getValue(b)
+	c = getValue(c)
 
+	assignValue(a, b ^ c)
+	return
 
 def langOr(a, b, c):
+	b = getValue(b)
+	c = getValue(c)
 
+	assignValue(a, b | c)
+	return
 
 def langAnd(a, b, c):
+	b = getValue(b)
+	c = getValue(c)
 
+	assignValue(a, b & c)
+	return
 
 def langNot(a, b):
+	b = getValue(b)
+	c = getValue(c)
 
+	assignValue(a, ~ b)
+	return
 
-def no():
+def shiftr(a, b, c):
+	b = getValue(b)
+	c = getValue(c)
 
+	assignValue(a, b >> c)
+	return
+
+def shiftl(a, b, c):
+	b = getValue(b)
+	c = getValue(c)
+
+	assignValue(a, b << c)
+	return
+
+def nop():
+	return
 
 def jmp(a):
-
+	a = getValue(a)
+	global reg
+	reg["PC"] = a
+	return
 
 def jmpe(a, b, c):
-
+	if (getValue(b) == getValue(c)):
+		jmp(a)
+	return
 
 def jmpl(a, b, c):
-
+	if (getValue(b) < getValue(c)):
+		jmp(a)
+	return
 
 def jmpg(a, b, c):
-
+	if (getValue(b) > getValue(c)):
+		jmp(a)
+	return
 
 def inc(a):
+	t = getValue(a)
 
+	assignValue(a, t + 1)
+	return
 
 def dec(a):
+	t = getValue(a)
 
+	assignValue(a, t - 1)
+	return
 
 def mov(a, b):
-
+	assignValue(a, getValue(b))
+	return
 
 def langPrint(a):
-
+	print(chr(getValue(a)), end="")
+	return
 
 def read(a):
-
+	r = raw_input().split[0]
+	if (len(r) == 1):
+		if (isNum(r)):
+			assignValue(a, r)
+		else:
+			assignValue(a, ord(r))
+	elif (r[0:2] == "0d" or r[0:2] == "0x" or r[0:2] == "0b"):
+		assignValue(a, getValue(r))
+	elif (isNum(r)):
+		assignValue(a, int(r))
+	return
 
 def halt():
-
+	quit()
 
 def var(name, a):
-
+	global variables
+	variables[name] = getValue(a)
+	return
 
 ## helper functions
 
@@ -177,6 +243,23 @@ def isNum(n):
 		return True
 	except ValueError:
 		return False
+
+def getBin(b):
+	if (b[0] == "1"):
+		x = flip(b[1:])
+		x = -1 * int(x, 2)
+	else:
+		x = int(b[1:], 2)
+	return x
+
+def flip(s):
+	t = ""
+	for i in range(len(s)):
+		if (s[i] == "0"):
+			t += "1"
+		else:
+			t += "0"
+	return s
 
 def errorTraceback():
 	for key in reg:
@@ -188,6 +271,15 @@ def getValue(b):
 		return mem[int(b[1:-1])]
 	elif ((b[0] == "r" and isNum(b[1])) or b == "rsp" or b == "rbp" or b == "rax" or b == "PC"):
 		return reg[b]
+	elif (b[0:2] == "0d"):
+		return int(b[2:])
+	elif (b[0:2] == "0x"):
+		x = int(h,16)
+		if (x > 0x7FFFFFFF):
+    		x -= 0x100000000
+    	return x
+	elif (b[0:2] == "0b"):
+		return getBin(b[2:])
 	elif (b in variables):
 		return mem[int(variables[c])]
 	else:
