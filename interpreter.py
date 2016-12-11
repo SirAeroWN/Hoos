@@ -155,7 +155,6 @@ def langAnd(a, b, c):
 
 def langNot(a, b):
 	b = getValue(b)
-	c = getValue(c)
 
 	assignValue(a, ~ b)
 	return
@@ -286,23 +285,35 @@ def getValue(b):
 	global reg
 	global labels
 	global variables
+
+
 	if (b[0] == "["):
 		return mem[getValue(b[1:-1])]
+
 	elif ((b[0] == "r" and isNum(b[1])) or b == "rsp" or b == "rbp" or b == "rax" or b == "PC"):
 		return reg[b]
+
 	elif (b[0:2] == "0d"):
 		return int(b[2:])
+
 	elif (b[0:2] == "0x"):
 		x = int(b, 16)
 		if (x > 0x7FFFFFFF):
 			x -= 0x100000000
 		return x
+
 	elif (b[0:2] == "0b"):
 		return getBin(b[2:])
+
+	elif (isNum(b)):
+		return int(b)
+
 	elif (b in labels):
 		return int(labels[b])
+
 	elif (b in variables):
 		return int(variables[b])
+
 	else:
 		print("Error when trying to get value of", b)
 		errorTraceback()
@@ -314,10 +325,13 @@ def assignValue(location, value):
 	global variables
 	if (location[0] == "["):
 		mem[getValue(location[1:-1])] = value
+
 	elif ((location[0] == "r" and isNum(location[1])) or location == "rsp" or location == "rbp" or location == "rax" or location == "PC"):
 		reg[location] = value
+
 	elif (location in variables):
 		variables[location] = value
+
 	else:
 		print("Error when trying to assign", value, "to", location)
 		errorTraceback()
