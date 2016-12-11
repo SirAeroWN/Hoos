@@ -1,0 +1,26 @@
+print ':' 1
+read r0
+print '>' 1
+read r1
+print '-' 1
+read r2
+push r0
+inc rsp
+push r1
+inc rsp
+push r2
+inc rsp
+pop r0
+dec rsp
+pop r1
+dec rsp
+pop r2
+dec rsp
+print r0 1
+print '\n' 1
+print r1 1
+print '\n' 1
+print '\t' 1
+print r2 1
+print '\n' 1
+print '\a' 1
