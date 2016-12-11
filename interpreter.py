@@ -307,6 +307,8 @@ def getValue(b):
     	return x
 	elif (b[0:2] == "0b"):
 		return getBin(b[2:])
+	elif (b in labels):
+		return int(labels[c])
 	elif (b in variables):
 		return mem[int(variables[c])]
 	else:
@@ -326,6 +328,11 @@ def assignValue(location, value):
 		print("Error when trying to assign" value, "to", location)
 		errorTraceback()
 
+def cleanArgument(s):
+	if (s[-1:] == ","):
+		return s[:-1]
+	else: return s
+
 
 ## Do pre execution analysis of file
 
@@ -341,3 +348,13 @@ while (reg["PC"] < loc):
 	line = program[reg["PC"]]
 	reg["PC"] += 1
 	instruction = line.split()
+	if (len(instruction) == 1):
+		instructions[instruction[0]]()
+	elif (len(instruction) == 1):
+		instructions[instruction[0]](cleanArgument(instruction[1]))
+	elif (len(instruction) == 2):
+		instructions[instruction[0]](cleanArgument(instruction[1]), cleanArgument(instruction[2]))
+	elif (len(instruction) == 3):
+		instructions[instruction[0]](cleanArgument(instruction[1]), cleanArgument(instruction[2]), cleanArgument(instruction[3]))
+	else:
+		print("Error trying to execute", reg["PC"] - 1, ":", line)
