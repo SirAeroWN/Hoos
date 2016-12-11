@@ -393,10 +393,55 @@ instructions = {"pop": pop,
 				"var": var,
 				"debug": debug}
 
-## Do pre execution analysis of file
-
 # need sys to open file
 import sys
+
+## optionally compile into a python script
+
+if (len(sys.argv) > 2 and sys.argv[1] == "-c"):
+	with open(sys.argv[2]) as sourcefile:
+		for line in enumerate(sourcefile):
+			if (line[1][-2:][0] == ":"):
+				labels[line[1][:-2]] = loc
+				program.append("nop")
+			else:
+				program.append(line[1])			
+			loc += 1
+		sourcefile.close()
+
+	if (len(sys.argv) > 4 and sys.argv[3] == "-o"):
+		out = sys.argv[4]
+	else:
+		out = "out.py"
+	with open(out, 'w') as outfile:
+		outfile.write("program = [")
+
+		for i in range(len(program)):
+			if (i + 1 == len(program)):
+				outfile.write("\"{}\"]\n".format(program[i].strip()))
+
+			else:
+				outfile.write("\"{}\",\n".format(program[i].strip()))
+
+		outfile.write("loc = {}\n".format(loc))
+		outfile.write("labels = {")
+
+		for key in labels:
+			outfile.write("\"{}\": {},\n".format(key, labels[key]))
+
+		outfile.write("}\n")
+
+		with open("frame.py", 'r') as framefile:
+			for line in enumerate(framefile):
+				outfile.write(line[1])
+			framefile.close()
+
+		outfile.close()
+		quit()
+
+
+
+## Do pre execution analysis of file
 
 with open(sys.argv[1]) as sourcefile:
 	for line in enumerate(sourcefile):
@@ -407,6 +452,8 @@ with open(sys.argv[1]) as sourcefile:
 			program.append(line[1])			
 		loc += 1
 	sourcefile.close()
+
+## execute program
 
 while (reg["PC"] < loc):
 	executeLine = program[reg["PC"]]
