@@ -1,0 +1,15 @@
+var a 0x0
+var b 0x1
+var c 0x2
+loop:
+read [a]
+read [b]
+read [c]
+add r0, [a], [b]
+add r0, r0 [c]
+jmpe zero, r0, 0d0
+jmp loop
+zero:
+print [a], 0d0
+print [b], 0d0
+print [c], 0d0
