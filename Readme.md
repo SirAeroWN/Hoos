@@ -48,7 +48,9 @@ $ python cav.py
 |`print a, b` 	|		if b == 0, prints int value of a, else prints ascii value of a|
 |`read a` 		|		reads in single character or entire int|
 |`halt`			|	stops execution|
-|`var name a` 	|		stores pointer with address a, name can only be letters and cannot be the same as a register name|
+|`call a`		|	pushes `PC` onto stack and jumps to a |
+|`ret`			|	pops top of stack into `PC` and jumps to `PC` |
+|`var name a` 	|		puts value a into memory, acessable with `nam`, address accessable with `[name]`, name can only be letters and cannot be the same as a register name|
 |`debug`			|	dumps memory and registers|
 |`label:`		|		label style is "name:"|
 
@@ -77,17 +79,17 @@ There are 5 different ways to represent a constant in your code:
 |	r0-r15	|			regular registers |
 |	rsp		|			stack pointer, supposed to point at top USED slot of stack |
 |	rbp		|			base pointer |
-|	rax		|			return value for functions |
-|	PC		|			Program Counter, points to next instruction, that is, what will be executed next |
+|	rax		|			return value for functions, accumulator |
+|	PC		|			Program Counter, points to next instruction, that is, what will be executed next, should not be modified directly |
 
 ####Calling Convention
 ----------------------
-r10-r15 used as first 6 parameters, any others must be put on stack.
+`r10`-`r15`used as first 6 parameters, any others must be put on stack.
 Any other registers used in function must be backed up and then restored from stack.
-PC must always be backed up so function can return properly.			TODO::it might be a good idea to implement call & ret instructions to handle PC for functions
 
 ####Memory
 ----------------------
 Main memory is 2^16 slots of python ints.
 Stack is 2^8 slots of python ints.
-Number of variables and labels is not explicitly limited.
+The number labels is not explicitly limited.
+The number of variables is limited the the space in mmemory.

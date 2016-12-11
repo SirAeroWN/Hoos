@@ -1,6 +1,6 @@
 # Instructions:
-# 	pop a 				a = stack[rsp]; decrementing rsp is up to program
-# 	push a 				stack[rsp+1] = a; incrementing rsp is up to program
+# 	pop a 				a = stack[rsp]; rsp -= 1
+# 	push a 				stack[rsp+1] = a; rsp += 1
 # 	add a, b, c			a = b + c
 # 	sub a, b, c			a = b - c
 # 	xor a, b, c			a = b xor c
@@ -20,7 +20,9 @@
 # 	print a, b 			if b == 0, prints int value of a, else prints ascii value of a
 # 	read a 				reads in single character or entire int
 # 	halt				stops execution
-# 	var name a 			stores pointer with address a, name can only be letters and cannot be the same as a register name
+#	call 				pushes PC onto the stack and jumps to label
+#	ret 				pops top of stack and returns to that instruction, if function coded correctly will be PC
+# 	var name a 			stores value a in memory, can get memory address with [name], name can only be letters and cannot be the same as a register name
 #	debug				dumps memory and registers
 # 	label:				label style is "name:"
 #*** if an argument is in [] then it is treated as a pointer to main memory
@@ -49,6 +51,7 @@
 # lists to hold memories
 mem = [0] * (2**16)
 stack = [0] * (2**8)
+varptr = len(mem) - 1
 
 # dict of registers
 reg = {"r0": 0,
@@ -101,6 +104,7 @@ def pop(a):
 	else:
 		print("Error when trying to pop into", a)
 		errorTraceback()
+	reg["rsp"] -= 1
 	return
 
 def push(a):
@@ -116,6 +120,7 @@ def push(a):
 	else:
 		print("Error when trying to push from", a)
 		errorTraceback()
+	reg["rsp"] += 1
 	return
 
 def add(a, b, c):
@@ -237,15 +242,35 @@ def halt():
 	print("\nExecution reached halt instruction")
 	quit()
 
+def call(a):
+	push("PC")
+	jmp(a)
+	return
+
+def ret():
+	pop("PC")
+	jmp("PC")
+	return
+
 def var(name, a):
 	global variables
-	variables[name] = getValue(a)
+	global varptr
+	global mem
+	variables[name] = varptr
+	mem[varptr] = getValue(a)
+	varptr -= 1
 	return
 
 def debug():
 	dumpMem()
 	errorTraceback()
 	return
+
+
+
+
+
+
 
 ## helper functions
 
@@ -288,7 +313,10 @@ def getValue(b):
 
 
 	if (b[0] == "["):
-		return mem[getValue(b[1:-1])]
+		if (b[1:-1] in variables):
+			return variables[b[1:-1]]
+		else:
+			return mem[getValue(b[1:-1])]
 
 	elif (b[0] == "'"):
 		if (b[1:-1] == '\\n'):
@@ -330,7 +358,7 @@ def getValue(b):
 		return int(labels[b])
 
 	elif (b in variables):
-		return int(variables[b])
+		return mem[variables[b]]
 
 	else:
 		print("Error when trying to get value of", b)
@@ -348,7 +376,7 @@ def assignValue(location, value):
 		reg[location] = value
 
 	elif (location in variables):
-		variables[location] = value
+		mem[variables[location]] = value
 
 	else:
 		print("Error when trying to assign", value, "to", location)
