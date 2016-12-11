@@ -4,8 +4,22 @@ The Hoos assembly language features syntax similar to intel assembly, it runs wi
 
 ###Interpreter Usage
 --------------------
-The interpreter takes only one areguement: the filename of a Hoos file to run.
-`python interpreter.py go.hoos`
+The interpreter can take 1, 2 or 4 arguments. The default is to pass one argument: the filename of the .hoo file to be run.
+```
+$ python interpreter.py wa.hoo
+```
+
+The second option is to pass two arguments which causes the interpreter to compile the .hoo file into a out.py file which can be run with python.
+```
+$ python interpreter.py -c wa.hoo
+$ python out.py
+```
+
+The last option is to pass four arguments which causes the interpreter to compile the .hoo file into a file with the name of the last argument
+```
+$ python interpreter.py -c wa.hoo -o cav.py
+$ python cav.py
+```
 
 ###Language Definition
 ----------------------
