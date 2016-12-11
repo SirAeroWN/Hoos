@@ -71,6 +71,30 @@ reg = {"r0": 0,
 		"rax": 0,
 		"PC": 0}
 
+# dict mapping instruction names to function
+instructions = {"pop": pop,
+				"push": push,
+				"add": add,
+				"sub": sub,
+				"xor": xor,
+				"or": langOr,
+				"and": langAnd,
+				"not": langNot,
+				"shiftr": shiftr,
+				"shiftl": shiftl,
+				"nop": nop,
+				"jmp": jmp,
+				"jmpe": jmpe,
+				"jmpl": jmpl,
+				"jmpg": jmpg,
+				"inc": inc,
+				"dec": dec,
+				"mov": mov,
+				"print": langPrint,
+				"read": read,
+				"halt": halt,
+				"var": var}
+
 # variables is a dict that holds any var: address that are created
 variables = {}
 
@@ -79,6 +103,9 @@ labels = {}
 
 # program holds all the instructions of the program
 program = []
+
+# number of lines in program, used so halt is not required
+loc = 0
 
 
 ## now define functions for all the instructions
@@ -298,3 +325,19 @@ def assignValue(location, value):
 	else:
 		print("Error when trying to assign" value, "to", location)
 		errorTraceback()
+
+
+## Do pre execution analysis of file
+
+with open(sys.argv[1]) as sourcefile:
+	for line in enumerate(sourcefile):
+		program.append(line)
+		if (line[-1:] == ":"):
+			labels[line[:-1]] = loc
+		loc += 1
+	sourcefile.close()
+
+while (reg["PC"] < loc):
+	line = program[reg["PC"]]
+	reg["PC"] += 1
+	instruction = line.split()
