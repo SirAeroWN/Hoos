@@ -71,30 +71,6 @@ reg = {"r0": 0,
 		"rax": 0,
 		"PC": 0}
 
-# dict mapping instruction names to function
-instructions = {"pop": pop,
-				"push": push,
-				"add": add,
-				"sub": sub,
-				"xor": xor,
-				"or": langOr,
-				"and": langAnd,
-				"not": langNot,
-				"shiftr": shiftr,
-				"shiftl": shiftl,
-				"nop": nop,
-				"jmp": jmp,
-				"jmpe": jmpe,
-				"jmpl": jmpl,
-				"jmpg": jmpg,
-				"inc": inc,
-				"dec": dec,
-				"mov": mov,
-				"print": langPrint,
-				"read": read,
-				"halt": halt,
-				"var": var}
-
 # variables is a dict that holds any var: address that are created
 variables = {}
 
@@ -112,14 +88,14 @@ loc = 0
 # arguments are strings
 
 def pop(a):
+	global mem
+	global stack
+	global reg
 	if (a[0] == "["):
-		global mem
 		mem[int(a[1:-1])] = stack[reg["rsp"]]
 	elif ((a[0] == "r" and isNum(a[1])) or a == "rsp" or a == "rbp" or a == "rax" or a == "PC"):
-		global reg
 		reg[a] = stack[reg["rsp"]]
 	elif (a in variables):
-		global mem
 		mem[int(variables[a])] = stack[reg["rsp"]]
 	else:
 		print("Error when trying to pop into", a)
@@ -127,14 +103,14 @@ def pop(a):
 	return
 
 def push(a):
+	global mem
+	global stack
+	global reg
 	if (a[0] == "["):
-		global stack
 		stack[reg["rsp"] + 1] = mem[int(a[1:-1])]
 	elif ((a[0] == "r" and isNum(a[1])) or a == "rsp" or a == "rbp" or a == "rax" or a == "PC"):
-		global stack
 		stack[reg["rsp"] + 1] = reg[a]
 	elif (a in variables):
-		global stack
 		stack[reg["rsp"] + 1] = mem[int(variables[a])]
 	else:
 		print("Error when trying to push from", a)
@@ -242,10 +218,10 @@ def langPrint(a):
 	return
 
 def read(a):
-	r = raw_input().split[0]
+	r = input().split()[0]
 	if (len(r) == 1):
 		if (isNum(r)):
-			assignValue(a, r)
+			assignValue(a, int(r))
 		else:
 			assignValue(a, ord(r))
 	elif (r[0:2] == "0d" or r[0:2] == "0x" or r[0:2] == "0b"):
@@ -255,6 +231,7 @@ def read(a):
 	return
 
 def halt():
+	print("\nExecution reached halt instruction")
 	quit()
 
 def var(name, a):
@@ -289,11 +266,17 @@ def flip(s):
 	return s
 
 def errorTraceback():
+	import inspect
+	print("Error in", inspect.stack()[1][3])
 	for key in reg:
 		print(key, "has value", reg[key])
 	quit()
 
 def getValue(b):
+	global mem
+	global reg
+	global labels
+	global variables
 	if (b[0] == "["):
 		return mem[int(b[1:-1])]
 	elif ((b[0] == "r" and isNum(b[1])) or b == "rsp" or b == "rbp" or b == "rax" or b == "PC"):
@@ -303,29 +286,31 @@ def getValue(b):
 	elif (b[0:2] == "0x"):
 		x = int(h,16)
 		if (x > 0x7FFFFFFF):
-    		x -= 0x100000000
-    	return x
+			x -= 0x100000000
+		return x
 	elif (b[0:2] == "0b"):
 		return getBin(b[2:])
 	elif (b in labels):
-		return int(labels[c])
+		return int(labels[b])
 	elif (b in variables):
-		return mem[int(variables[c])]
+		return mem[int(variables[b])]
 	else:
 		print("Error when trying to get value of", b)
 		errorTraceback()
 
 def assignValue(location, value):
+	global mem
+	global reg
+	global labels
+	global variables
 	if (location[0] == "["):
-		global mem
 		mem[int(location[1:-1])] = value
 	elif ((location[0] == "r" and isNum(location[1])) or location == "rsp" or location == "rbp" or location == "rax" or location == "PC"):
-		global reg
 		reg[location] = value
 	elif (location in variables):
 		variables[location] = value
 	else:
-		print("Error when trying to assign" value, "to", location)
+		print("Error when trying to assign", value, "to", location)
 		errorTraceback()
 
 def cleanArgument(s):
@@ -334,27 +319,58 @@ def cleanArgument(s):
 	else: return s
 
 
+# dict mapping instruction names to function, must be after function definitions
+instructions = {"pop": pop,
+				"push": push,
+				"add": add,
+				"sub": sub,
+				"xor": xor,
+				"or": langOr,
+				"and": langAnd,
+				"not": langNot,
+				"shiftr": shiftr,
+				"shiftl": shiftl,
+				"nop": nop,
+				"jmp": jmp,
+				"jmpe": jmpe,
+				"jmpl": jmpl,
+				"jmpg": jmpg,
+				"inc": inc,
+				"dec": dec,
+				"mov": mov,
+				"print": langPrint,
+				"read": read,
+				"halt": halt,
+				"var": var}
+
 ## Do pre execution analysis of file
+
+# need sys to open file
+import sys
 
 with open(sys.argv[1]) as sourcefile:
 	for line in enumerate(sourcefile):
-		program.append(line)
-		if (line[-1:] == ":"):
-			labels[line[:-1]] = loc
+		if (line[1][-2:][0] == ":"):
+			labels[line[1][:-2]] = loc
+			program.append("nop")
+		else:
+			program.append(line[1])			
 		loc += 1
 	sourcefile.close()
 
 while (reg["PC"] < loc):
-	line = program[reg["PC"]]
+	executeLine = program[reg["PC"]]
 	reg["PC"] += 1
-	instruction = line.split()
+	instruction = executeLine.split()
 	if (len(instruction) == 1):
 		instructions[instruction[0]]()
-	elif (len(instruction) == 1):
-		instructions[instruction[0]](cleanArgument(instruction[1]))
 	elif (len(instruction) == 2):
-		instructions[instruction[0]](cleanArgument(instruction[1]), cleanArgument(instruction[2]))
+		instructions[instruction[0]](cleanArgument(instruction[1]))
 	elif (len(instruction) == 3):
+		instructions[instruction[0]](cleanArgument(instruction[1]), cleanArgument(instruction[2]))
+	elif (len(instruction) == 4):
 		instructions[instruction[0]](cleanArgument(instruction[1]), cleanArgument(instruction[2]), cleanArgument(instruction[3]))
 	else:
-		print("Error trying to execute", reg["PC"] - 1, ":", line)
+		print("Error trying to execute", reg["PC"] - 1, ":", executeLine)
+
+print("\nExecution Ended")
