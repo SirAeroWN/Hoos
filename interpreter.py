@@ -17,10 +17,11 @@
 # 	inc a 				a += 1
 # 	dec a 				a -= 1
 # 	mov a, b 			a = b
-# 	print a 			prints ascii value of a
+# 	print a, b 			if b == 0, prints int value of a, else prints ascii value of a
 # 	read a 				reads in single character or entire int
 # 	halt				stops execution
 # 	var name a 			stores pointer with address a, name can only be letters and cannot be the same as a register name
+#	debug				dumps memory and registers
 # 	label:				label style is "name:"
 #*** if an argument is in [] then it is treated as a pointer to main memory
 #*** otherwise if it is a name of a register it will be treated as such
@@ -213,8 +214,11 @@ def mov(a, b):
 	assignValue(a, getValue(b))
 	return
 
-def langPrint(a):
-	print(chr(getValue(a)), end="")
+def langPrint(a, b):
+	if (getValue(b) == 0):
+		print(getValue(a), end="")
+	else:
+		print(chr(getValue(a)), end="")
 	return
 
 def read(a):
@@ -237,6 +241,11 @@ def halt():
 def var(name, a):
 	global variables
 	variables[name] = getValue(a)
+	return
+
+def debug():
+	dumpMem()
+	errorTraceback()
 	return
 
 ## helper functions
@@ -278,13 +287,13 @@ def getValue(b):
 	global labels
 	global variables
 	if (b[0] == "["):
-		return mem[int(b[1:-1])]
+		return mem[getValue(b[1:-1])]
 	elif ((b[0] == "r" and isNum(b[1])) or b == "rsp" or b == "rbp" or b == "rax" or b == "PC"):
 		return reg[b]
 	elif (b[0:2] == "0d"):
 		return int(b[2:])
 	elif (b[0:2] == "0x"):
-		x = int(h,16)
+		x = int(b, 16)
 		if (x > 0x7FFFFFFF):
 			x -= 0x100000000
 		return x
@@ -293,7 +302,7 @@ def getValue(b):
 	elif (b in labels):
 		return int(labels[b])
 	elif (b in variables):
-		return mem[int(variables[b])]
+		return int(variables[b])
 	else:
 		print("Error when trying to get value of", b)
 		errorTraceback()
@@ -304,7 +313,7 @@ def assignValue(location, value):
 	global labels
 	global variables
 	if (location[0] == "["):
-		mem[int(location[1:-1])] = value
+		mem[getValue(location[1:-1])] = value
 	elif ((location[0] == "r" and isNum(location[1])) or location == "rsp" or location == "rbp" or location == "rax" or location == "PC"):
 		reg[location] = value
 	elif (location in variables):
@@ -317,6 +326,14 @@ def cleanArgument(s):
 	if (s[-1:] == ","):
 		return s[:-1]
 	else: return s
+
+def dumpMem():
+	global mem
+	global stack
+	global variables
+	print("Main memory:", mem)
+	print("Stack:", stack)
+	print("Variables:", variables)
 
 
 # dict mapping instruction names to function, must be after function definitions
@@ -341,7 +358,8 @@ instructions = {"pop": pop,
 				"print": langPrint,
 				"read": read,
 				"halt": halt,
-				"var": var}
+				"var": var,
+				"debug": debug}
 
 ## Do pre execution analysis of file
 
