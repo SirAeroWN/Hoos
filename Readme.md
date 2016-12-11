@@ -23,7 +23,7 @@ $ python cav.py
 
 ###Language Definition
 ----------------------
-#####Instructions:
+####Instructions:
 
 |Instruction | Description |
 |-------------|---------------|
@@ -52,12 +52,12 @@ $ python cav.py
 |`debug`			|	dumps memory and registers|
 |`label:`		|		label style is "name:"|
 
-#####Arguments
+####Arguments
 ----------------------
 Arguments to instructions follow the general pattern `instruction <destination>, <source1>, <source2>`
 The destination cannot be a constant value, doing so will result in a runtime error.
 
-#####Constants
+####Constants
 ----------------------
 There are 5 different ways to represent a constant in your code:
 
@@ -69,7 +69,7 @@ There are 5 different ways to represent a constant in your code:
 |`123`			 | Decimal, no prefix |
 |`'a'`			 | Char, must be within `''` |
 
-#####Registers:
+####Registers:
 ----------------------
 
 | Refister | Description |
@@ -80,13 +80,13 @@ There are 5 different ways to represent a constant in your code:
 |	rax		|			return value for functions |
 |	PC		|			Program Counter, points to next instruction, that is, what will be executed next |
 
-#####Calling Convention
+####Calling Convention
 ----------------------
 r10-r15 used as first 6 parameters, any others must be put on stack.
 Any other registers used in function must be backed up and then restored from stack.
 PC must always be backed up so function can return properly.			TODO::it might be a good idea to implement call & ret instructions to handle PC for functions
 
-#####Memory
+####Memory
 ----------------------
 Main memory is 2^16 slots of python ints.
 Stack is 2^8 slots of python ints.
