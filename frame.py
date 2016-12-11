@@ -1,5 +1,6 @@
 mem = [0] * (2**16)
 stack = [0] * (2**8)
+varptr = len(mem) - 1
 reg = {"r0": 0,
 		"r1": 0,
 		"r2": 0,
@@ -35,6 +36,7 @@ def pop(a):
 	else:
 		print("Error when trying to pop into", a)
 		errorTraceback()
+	reg["rsp"] -= 1
 	return
 
 def push(a):
@@ -50,6 +52,7 @@ def push(a):
 	else:
 		print("Error when trying to push from", a)
 		errorTraceback()
+	reg["rsp"] += 1
 	return
 
 def add(a, b, c):
@@ -171,9 +174,23 @@ def halt():
 	print("\nExecution reached halt instruction")
 	quit()
 
+def call(a):
+	push("PC")
+	jmp(a)
+	return
+
+def ret():
+	pop("PC")
+	jmp("PC")
+	return
+
 def var(name, a):
 	global variables
-	variables[name] = getValue(a)
+	global varptr
+	global mem
+	variables[name] = varptr
+	mem[varptr] = getValue(a)
+	varptr -= 1
 	return
 
 def debug():
@@ -220,7 +237,10 @@ def getValue(b):
 
 
 	if (b[0] == "["):
-		return mem[getValue(b[1:-1])]
+		if (b[1:-1] in variables):
+			return variables[b[1:-1]]
+		else:
+			return mem[getValue(b[1:-1])]
 
 	elif (b[0] == "'"):
 		if (b[1:-1] == '\\n'):
@@ -262,7 +282,7 @@ def getValue(b):
 		return int(labels[b])
 
 	elif (b in variables):
-		return int(variables[b])
+		return mem[variables[b]]
 
 	else:
 		print("Error when trying to get value of", b)
@@ -280,7 +300,7 @@ def assignValue(location, value):
 		reg[location] = value
 
 	elif (location in variables):
-		variables[location] = value
+		mem[variables[location]] = value
 
 	else:
 		print("Error when trying to assign", value, "to", location)
@@ -320,6 +340,8 @@ instructions = {"pop": pop,
 				"print": langPrint,
 				"read": read,
 				"halt": halt,
+				"call": call
+				"ret": ret
 				"var": var,
 				"debug": debug}
 
