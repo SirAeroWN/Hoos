@@ -290,6 +290,24 @@ def getValue(b):
 	if (b[0] == "["):
 		return mem[getValue(b[1:-1])]
 
+	elif (b[0] == "'"):
+		if (b[1:-1] == '\\n'):
+			return ord('\n')
+		elif (b[1:-1] == '\\t'):
+			return ord('\t')
+		elif (b[1:-1] == '\\a'):
+			return ord('\a')
+		elif (b[1:-1] == '\\r'):
+			return ord('\r')
+		elif (b[1:-1] == '\\f'):
+			return ord('\f')
+		elif (b[1:-1] == '\\b'):
+			return ord('\b')
+		elif (b[1:-1] == '\\v'):
+			return ord('\v')
+		else:
+			return ord(b[1])
+
 	elif ((b[0] == "r" and isNum(b[1])) or b == "rsp" or b == "rbp" or b == "rax" or b == "PC"):
 		return reg[b]
 
