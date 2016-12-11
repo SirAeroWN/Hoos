@@ -1,0 +1,8 @@
+print 0d58
+read r0
+add r0, r0, 0d48
+loop:
+print r0
+inc r0
+jmpl loop, r0, 0d58
+halt
