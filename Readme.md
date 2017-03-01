@@ -50,7 +50,7 @@ $ python cav.py
 |`halt`			|	stops execution|
 |`call a`		|	pushes `PC` onto stack and jumps to a |
 |`ret`			|	pops top of stack into `PC` and jumps to `PC` |
-|`var name a` 	|		puts value a into memory, acessable with `nam`, address accessable with `[name]`, name can only be letters and cannot be the same as a register name|
+|`var name a` 	|		puts value a into memory, acessable with `name`, address accessable with `[name]`, name can only be letters and cannot be the same as a register name|
 |`debug`			|	dumps memory and registers|
 |`label:`		|		label style is "name:"|
 
