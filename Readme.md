@@ -1,8 +1,8 @@
-#Hoos Assembly language
+# Hoos Assembly language
 ----------------------
 The Hoos assembly language features syntax similar to intel assembly, it runs with a python interpreter. Hoos is turing complete. It has memory restrictions on both the main memory and the stack, these are arbitrary and can easily be increased by editing the interpreter. The number of registers is also arbitrary and can be increased on a whim.
 
-###Interpreter Usage
+### Interpreter Usage
 --------------------
 The interpreter can take 1, 2 or 4 arguments. The default is to pass one argument: the filename of the .hoo file to be run.
 ```
@@ -21,9 +21,9 @@ $ python interpreter.py -c wa.hoo -o cav.py
 $ python cav.py
 ```
 
-###Language Definition
+### Language Definition
 ----------------------
-####Instructions:
+#### Instructions:
 
 |Instruction | Description |
 |-------------|---------------|
@@ -54,12 +54,12 @@ $ python cav.py
 |`debug`			|	dumps memory and registers|
 |`label:`		|		label style is "name:"|
 
-####Arguments
+#### Arguments
 ----------------------
 Arguments to instructions follow the general pattern `instruction <destination>, <source1>, <source2>`
 The destination cannot be a constant value, doing so will result in a runtime error.
 
-####Constants
+#### Constants
 ----------------------
 There are 5 different ways to represent a constant in your code:
 
@@ -71,7 +71,7 @@ There are 5 different ways to represent a constant in your code:
 |`123`			 | Decimal, no prefix |
 |`'a'`			 | Char, must be within `''` |
 
-####Registers:
+#### Registers:
 ----------------------
 
 | Refister | Description |
@@ -82,12 +82,12 @@ There are 5 different ways to represent a constant in your code:
 |	rax		|			return value for functions, accumulator |
 |	PC		|			Program Counter, points to next instruction, that is, what will be executed next, should not be modified directly |
 
-####Calling Convention
+#### Calling Convention
 ----------------------
 `r10`-`r15`used as first 6 parameters, any others must be put on stack.
 Any other registers used in function must be backed up and then restored from stack.
 
-####Memory
+#### Memory
 ----------------------
 Main memory is 2^16 slots of python ints.
 Stack is 2^8 slots of python ints.
