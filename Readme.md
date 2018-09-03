@@ -50,7 +50,7 @@ $ python cav.py
 |`halt`			|	stops execution|
 |`call a`		|	pushes `PC` onto stack and jumps to a |
 |`ret`			|	pops top of stack into `PC` and jumps to `PC` |
-|`var name a` 	|		puts value a into memory, acessable with `nam`, address accessable with `[name]`, name can only be letters and cannot be the same as a register name|
+|`var name a` 	|		puts value a into memory, accessible with `name`, address accessible with `[name]`, `name` can only be letters and cannot be the same as a register name|
 |`debug`			|	dumps memory and registers|
 |`label:`		|		label style is "name:"|
 
@@ -91,5 +91,5 @@ Any other registers used in function must be backed up and then restored from st
 ----------------------
 Main memory is 2^16 slots of python ints.
 Stack is 2^8 slots of python ints.
-The number labels is not explicitly limited.
-The number of variables is limited the the space in mmemory.
+The number of labels is not explicitly limited.
+The number of variables is limited by the the space in memory.
